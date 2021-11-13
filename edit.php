@@ -1,4 +1,6 @@
 <?php
+  session_start();
+
   require('connect.php');
   require('authenticate.php');
   // I have the ID for the post that I need to get
@@ -56,7 +58,7 @@
             <p>
               <input type="hidden" name="postId" value="<?= $row['postId'] ?>" />
               <input type="submit" name="command" value="Update" />      
-              <input type="submit" formaction="delete.php?id=<?= $row['postId'] ?>" value="Delete">
+              <input type="submit" formaction="delete.php?postId=<?= $row['postId'] ?>" value="Delete">
             </p>
           </fieldset>
         </form>        

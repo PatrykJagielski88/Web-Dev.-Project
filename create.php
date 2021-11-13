@@ -3,11 +3,12 @@ September 29, 2021
 Assignment 3 -->
 
 <?php
+  session_start();
+print_r($_SESSION);
   require('connect.php');
   require('authenticate.php');
   // print_r($_SESSION);
-  if($_POST && !empty($_POST['title']) && !empty($_POST['content']) && is_numeric($_POST['userId']) 
-      && filter_input(INPUT_POST, "userId", FILTER_SANITIZE_NUMBER_INT) && is_numeric($_POST['categoryId']) 
+  if($_POST && !empty($_POST['title']) && !empty($_POST['content']) && is_numeric($_POST['categoryId']) 
       && filter_input(INPUT_POST, "categoryId", FILTER_SANITIZE_NUMBER_INT)) {
 print_r($_POST);
     // First we need to sanitize our input first
@@ -22,7 +23,7 @@ print_r($_POST);
     // bind our values to our placeholders
     $statement->bindValue(':title', $sanitized_post['title']);
     $statement->bindValue(':content', $sanitized_post['content']);
-    $statement->bindValue(':userId', $sanitized_post['userId']);
+    $statement->bindValue(':userId', $_SESSION['userId']);
     $statement->bindValue(':categoryId', $sanitized_post['categoryId']);
 
     // Finally execute the query
@@ -60,8 +61,7 @@ print_r($_POST);
             <input name="title" id="title" />
           </p>
           <p>
-            <label for="userId">Please type in your user Id:</label>
-            <input name="userId" id="userId" />
+            Your user id is <?= $_SESSION['userId'] ?> and your username is <?= $_SESSION['username'] ?>.
           </p>
           <p>
             <label for="content">Content</label>

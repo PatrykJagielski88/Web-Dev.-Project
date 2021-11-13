@@ -4,7 +4,7 @@ session_start();
  
 // Check if the user is already logged in, if yes then redirect him to welcome page
 if(isset($_SESSION["loggedin"]) && $_SESSION["loggedin"] === true){
-    header("location: welcome.php");
+    header("location: index.php");
     exit;
 }
  
@@ -43,20 +43,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             
             // Set parameters
             $param_username = trim($_POST["username"]);
-            print_r("dupa");
             // Attempt to execute the prepared statement
             if($stmt->execute()){
                 // Check if username exists, if yes then verify password
                 if($stmt->rowCount() == 1){
                     if($row = $stmt->fetch()){
                         $id = $row["userId"];
-                        print_r($password);
+
                         $username = $row["username"];
                         $hashed_password = $row["password"];
-                        print_r($hashed_password);
-                         print_r(password_verify('qweasd', password_hash('qweasd', PASSWORD_DEFAULT) ) ? 'yes':'no');
-                        // print_r(password_hash('qweasd', PASSWORD_DEFAULT));
-                        // print_r($_POST["password"]);
+
                         if(password_verify($password, $hashed_password)){
                             // Password is correct, so start a new session
                             session_start();
@@ -65,9 +61,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             $_SESSION["loggedin"] = true;
                             $_SESSION["userId"] = $id;
                             $_SESSION["username"] = $username;                            
-                            print_r($_SESSION);
+
                             // Redirect user to welcome page
-                            header("location: welcome.php");
+                            header("location: index.php");
                         } else{
                             // Password is not valid, display a generic error message
                             $login_err = "Invalid username or password.";
