@@ -7,16 +7,32 @@
 print_r(session_status());
 print_r($_GET);
     if (isset($_GET["sort"]) && $_GET["sort"] == "categoryName") {
-        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY categoryName DESC";
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY p.categoryId ASC";
         $sort = "category name";
     }
     elseif (isset($_GET["sort"]) && $_GET["sort"] == "title")  {
-        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY title DESC";
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY title ASC";
         $sort = "title";
     }
     elseif (isset($_GET["sort"]) && $_GET["sort"] == "date") {
-        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY date DESC";
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY date ASC";
         $sort = "date";
+    }
+    elseif (isset($_GET["display"]) && $_GET["display"] == "breakfast") {
+        $query = "SELECT * FROM post p, category c WHERE p.categoryId = c.categoryId AND c.categoryId = 1 ORDER BY postId";
+        $sort = "breakfast";
+    }
+    elseif (isset($_GET["display"]) && $_GET["display"] == "lunch") {
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 2 ORDER BY postId";
+        $sort = "lunch";
+    }
+    elseif (isset($_GET["display"]) && $_GET["display"] == "dinner") {
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 3 ORDER BY postId";
+        $sort = "dinner";
+    }
+    elseif (isset($_GET["display"]) && $_GET["display"] == "dessert") {
+        $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 4 ORDER BY postId";
+        $sort = "dessert";
     }
     else {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY postId DESC";
@@ -64,6 +80,12 @@ print_r($_GET);
             <li><a href="index.php?sort=categoryName" >Sort by category name.</a></li>
             <li><a href="index.php?sort=title" >Sort by title.</a></li>
             <li><a href="index.php?sort=date" >Sort by date.</a></li>
+            <p>
+                <li><a href="index.php?display=breakfast" >All breakfast items.</a></li>
+                <li><a href="index.php?display=lunch" >All lunch items.</a></li>
+                <li><a href="index.php?display=dinner" >All dinner items.</a></li>
+                <li><a href="index.php?display=dessert" >All dessert items.</a></li>
+            </p>
             <li>Sorted by <?= $sort ?> </li>
         <?php endif; ?>
 
@@ -78,10 +100,12 @@ print_r($_GET);
                     Category name:<?= $row['categoryName'] ?>
                 </div>  
                 <div class='blog_content'>
-                    <p>Content:<?= $row["content"] ?></p>
-                
-                    <p>UserId:<?= $row["userId"] ?></p>
-                    <a href="edit.php?postId=<?= $row["postId"] ?>">edit</a>
+                    <?php if (isset($_SESSION["loggedin"])):?>
+                        <p>Content:<?= $row["content"] ?></p>
+                    
+                        <p>UserId:<?= $row["userId"] ?></p>
+                        <a href="edit.php?postId=<?= $row["postId"] ?>">edit</a>
+                    <?php endif; ?>
                 </div>                       
         <?php endforeach; ?>  
     </div> 
