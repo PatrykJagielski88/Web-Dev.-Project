@@ -49,16 +49,23 @@ if (isset($_POST)) {
   // Finally execute the query
   $statement->execute(); // The query is now executed.
 
-    if ($statement->rowCount() >= 0) {
-        header('Location: index.php');
-        exit();
-    }
+    // if ($statement->rowCount() >= 0) {
+    //   if (isset($is_valid) && !$is_valid) {
+    //     $message = 'Sorry but the file must be a jpg, jpeg or png.</br>
+    //               If your post was successfully created you can always update it with an image later.';
+    //   }
+    //   else {
+    //     header('Location: index.php');
+    //     exit();
+    //   }
+        
+    // }
   }
   elseif ($_POST && empty($_POST['title']) && empty($_POST['content'])) {
     exit("The title and content can NOT be empty.");
   }
 
-  if ($_POST && $_POST['submit'] == 'Upload Image') {
+  if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image') {
 
        
     // $query2 = "SELECT LAST_INSERT_ID()";
@@ -126,7 +133,7 @@ if ($upload_detected) {
     $temporary_path  = $_FILES['uploaded_file']['tmp_name'];
     $new_path        = file_upload_path($filename);
     print_r($filename);
-    if (file_is_valid($temporary_path, $new_path)) { 
+    if ($is_valid = file_is_valid($temporary_path, $new_path)) { 
         $actual_file_extension = pathinfo($new_path, PATHINFO_EXTENSION);
 
         $path = basename($new_path,$actual_file_extension);
@@ -175,7 +182,11 @@ print_r("path ".$path);
             <legend>Edit Blog Post</legend>
             <p>
               <label for="title">Title</label>
-              <input name="title" id="title" value="<?= $row['title'] ?>" />
+              <?php if (isset($row['title'])): ?>
+                <input name="title" id="title" value="<?= $row['title'] ?>" />
+              <?php else: ?>
+                <input name="title" id="title" value="" />
+              <?php endif; ?>
             </p>
             <p>
               <label for="content">Content</label>
@@ -191,7 +202,10 @@ print_r("path ".$path);
           <input type='file' name='uploaded_file' id='uploaded_file'>
           <input type='submit' name='submit' value='Upload Image'>
         </form>        
-        <?php if ($upload_error_detected): ?>
+        <?php if (isset($is_valid) && !$is_valid): ?>
+          
+        <?php endif; ?>
+        <?php if ($upload_error_detected && $_FILES['uploaded_file']['error'] !== 4): ?>
           <p>Error Number: <?= $_FILES['uploaded_file']['error'] ?></p>
         <?php elseif ($upload_detected): ?>
           <p>Client-Side Filename: <?= $_FILES['uploaded_file']['name'] ?></p>
@@ -199,6 +213,12 @@ print_r("path ".$path);
           <p>Size in Bytes:        <?= $_FILES['uploaded_file']['size'] ?></p>
           <p>Temporary Path:       <?= $_FILES['uploaded_file']['tmp_name'] ?></p>
         <?php endif ?>
+        <?php if (isset($statement) && $statement->rowCount() >= 0): ?>
+        <?php if ($upload_error_detected && $_FILES['uploaded_file']['error'] !== 4): ?>
+          <p>Error Number: <?= $_FILES['uploaded_file']['error'] ?></p>
+        <?php endif ?>
+        <p class="success">Post Updated!</p>
+      <?php endif; ?>
       </div>
           <div id="footer">
               Copywrong 2021 - No Rights Reserved
