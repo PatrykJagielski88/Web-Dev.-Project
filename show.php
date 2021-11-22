@@ -20,6 +20,17 @@ print_r($_GET);
         $fetch_statement->execute();
     
         $row = $fetch_statement->fetch();
+
+        $select_query2 = "SELECT * FROM images WHERE postId = :postId LIMIT 1";
+
+        // Prepare the Database Object with the query
+        $fetch_statement2 = $db->prepare($select_query2); // Returns a PDOStatement object.
+
+        $fetch_statement2->bindValue(':postId', $_GET["postId"], PDO::PARAM_INT);
+
+        $fetch_statement2->execute();
+    
+        $row2 = $fetch_statement2->fetch();
     }
     else {
         header('Location: index.php');
@@ -56,6 +67,9 @@ print_r($_GET);
                 <div class='blog_content'>
                     <?= $row['content'] ?>
                 </div>
+                <?php if(isset($row2['imageId'])): ?>
+                    Image:<img src="uploads/<?= $row2["imageName"] ?>" alt="">
+                <?php endif; ?>
             </div>
         </div>
         <div id="footer">
