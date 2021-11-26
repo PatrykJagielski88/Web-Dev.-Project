@@ -25,7 +25,7 @@ print_r($_SESSION);
     // The DIRECTORY_SEPARATOR constant is OS specific.
     return join(DIRECTORY_SEPARATOR, $path_segments);
  }
-// print_r("current folder".$current_folder);
+
  // file_is_valid() - Checks the mime-type & extension of the uploaded file for "image-ness".
  function file_is_valid($temporary_path, $new_path) {
      $allowed_mime_types      = ['image/gif', 'image/jpeg', 'image/png'];
@@ -47,27 +47,25 @@ print_r($_SESSION);
      $filename        = $_FILES['uploaded_file']['name'];
      $temporary_path  = $_FILES['uploaded_file']['tmp_name'];
      $new_path        = file_upload_path($filename);
-     print_r($filename);
+
      if ($is_valid = file_is_valid($temporary_path, $new_path)) { 
          $actual_file_extension = pathinfo($new_path, PATHINFO_EXTENSION);
 
          $path = basename($new_path,$actual_file_extension);
-print_r("path ".$path);
-
          move_uploaded_file($temporary_path, $new_path);
          
          $actual_file_name = pathinfo($new_path, PATHINFO_FILENAME);
          if ($actual_file_extension !== 'pdf') {
              $image_medium = new ImageResize("{$new_path}");
              $image_medium->resizeToLongSide(250);
-             $image_medium->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}");
+             $image_medium->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
 
          //     $image_thumbnail = new ImageResize("{$new_path}");
          //     $image_thumbnail->resizeToLongSide(50);
          //     $image_thumbnail->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_thumbnail.{$actual_file_extension}");
 
-             rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_original.{$actual_file_extension}");
-             rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
+             //rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_original.{$actual_file_extension}");
+             //rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
          }                    
      }
  }
@@ -75,7 +73,7 @@ print_r("path ".$path);
   // print_r($_SESSION);
   if($_POST && !empty($_POST['title']) && !empty($_POST['content']) && is_numeric($_POST['categoryId']) 
       && filter_input(INPUT_POST, "categoryId", FILTER_SANITIZE_NUMBER_INT)) {
-print_r($_POST);
+
     // First we need to sanitize our input first
     $sanitized_post = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
@@ -96,8 +94,6 @@ print_r($_POST);
 
     if ($_POST['submit'] == 'Upload Image and Create' && isset($is_valid) && $is_valid) {
 
-      print_r('dziala');
-
       $query2 = "SELECT LAST_INSERT_ID()";
       $statement2 = $db->prepare($query2); // Returns a PDOStatement object.
       $statement2->execute(); // The query is now executed.
@@ -105,20 +101,21 @@ print_r($_POST);
       $row2 = $statement2->fetch();
       print_r($row2);
 
-      $insert_query2 = "INSERT INTO images (imageName, postId) VALUES (:imageName, :postId)";
+      if (filter_var($_FILES['uploaded_file']['name'], FILTER_SANITIZE_STRING)) {
 
-    // Prepare the Database Object with the query
-    $statement2 = $db->prepare($insert_query2); // Returns a PDOStatement object.
+        $insert_query2 = "INSERT INTO images (imageName, postId) VALUES (:imageName, :postId)";
 
-    // bind our values to our placeholders
-    $statement2->bindValue(':imageName', $_FILES['uploaded_file']['name'] );
-    $statement2->bindValue(':postId', $row2[0]);
-
-    // Finally execute the query
-    $statement2->execute(); // The query is now executed.
-
+        // Prepare the Database Object with the query
+        $statement2 = $db->prepare($insert_query2); // Returns a PDOStatement object.
+  
+        // bind our values to our placeholders
+        $statement2->bindValue(':imageName', $_FILES['uploaded_file']['name'] );
+        $statement2->bindValue(':postId', $row2[0]);
+  
+        // Finally execute the query
+        $statement2->execute(); // The query is now executed.
+      }
     }
-
   }
   elseif ($_POST && empty($_POST['title']) && empty($_POST['content'])) {
     exit("The title and content can NOT be empty.");

@@ -2,7 +2,7 @@
 September 29, 2021
 Assignment 3 -->
 
-<?php
+<!-- <?php
   require('connect.php');
   print_r($_POST);
   if($_POST && !empty($_POST['title']) && !empty($_POST['content'])&& is_numeric($_POST['postId']) 
@@ -46,4 +46,4 @@ Assignment 3 -->
   <body>
     <?php header('Location: index.php') ?>
   </body>
-</html> 
+</html>  -->

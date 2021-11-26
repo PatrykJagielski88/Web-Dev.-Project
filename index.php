@@ -6,31 +6,31 @@
     require('connect.php');
 print_r(session_status());
 print_r($_GET);
-    if (isset($_GET["sort"]) && $_GET["sort"] == "categoryName") {
+    if (isset($_GET["sort"]) && $_GET["sort"] == "categoryName" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY p.categoryId ASC";
         $sort = "category name";
     }
-    elseif (isset($_GET["sort"]) && $_GET["sort"] == "title")  {
+    elseif (isset($_GET["sort"]) && $_GET["sort"] == "title" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS))  {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY title ASC";
         $sort = "title";
     }
-    elseif (isset($_GET["sort"]) && $_GET["sort"] == "date") {
+    elseif (isset($_GET["sort"]) && $_GET["sort"] == "date" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY date ASC";
         $sort = "date";
     }
-    elseif (isset($_GET["display"]) && $_GET["display"] == "breakfast") {
+    elseif (isset($_GET["display"]) && $_GET["display"] == "breakfast" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE p.categoryId = c.categoryId AND c.categoryId = 1 ORDER BY postId";
         $sort = "breakfast";
     }
-    elseif (isset($_GET["display"]) && $_GET["display"] == "lunch") {
+    elseif (isset($_GET["display"]) && $_GET["display"] == "lunch" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 2 ORDER BY postId";
         $sort = "lunch";
     }
-    elseif (isset($_GET["display"]) && $_GET["display"] == "dinner") {
+    elseif (isset($_GET["display"]) && $_GET["display"] == "dinner" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 3 ORDER BY postId";
         $sort = "dinner";
     }
-    elseif (isset($_GET["display"]) && $_GET["display"] == "dessert") {
+    elseif (isset($_GET["display"]) && $_GET["display"] == "dessert" && filter_input_array(INPUT_GET, FILTER_SANITIZE_FULL_SPECIAL_CHARS)) {
         $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId AND c.categoryId = 4 ORDER BY postId";
         $sort = "dessert";
     }
@@ -47,12 +47,15 @@ print_r($_GET);
     // print_r($row['categoryId']);
     
         //print_r($row['categoryId']);
-    // $query2 = "SELECT * FROM category where categoryId = `{$row['categoryId']}`";
-    // $statement2 = $db->prepare($query2); // Returns a PDOStatement object.
-    // $statement2->execute(); // The query is now executed.
+    $query2 = "SELECT * FROM images";
+    $statement2 = $db->prepare($query2); // Returns a PDOStatement object.
+    $statement2->execute(); // The query is now executed.
     
-    // $row2 = $statement2->fetch();
+    $result2 = $statement2->fetchAll();
     //   print_r($row2);
+
+    //print_r($_FILES);
+
 ?>
  
  <!DOCTYPE html>
@@ -97,8 +100,13 @@ print_r($_GET);
                 <h2><a href="show.php?postId=<?= $row["postId"] ?>"><?= $row['title'] ?></a></h2>
                     PostId:<?= $row["postId"] ?></br>                    
                     Date:<?= $row["date"] ?></br>
-                    Category name:<?= $row['categoryName'] ?>
-                </div>  
+                    Category name:<?= $row['categoryName'] ?>       </br>
+                    <?php foreach($result2 as $row2): ?> 
+                        <?php if ($row['postId'] == $row2['postId']):?>
+                            image: <img src="uploads/<?= $row2["imageName"] ?>" alt="">
+                        <?php endif; ?>
+                    <?php endforeach; ?>              
+            </div>  
                 <div class='blog_content'>
                     <?php if (isset($_SESSION["loggedin"])):?>
                         <p>Content:<?= $row["content"] ?></p>
