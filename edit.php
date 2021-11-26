@@ -24,49 +24,67 @@
     $row = $fetch_statement->fetch();
     
 
-  
+    $query2 = "SELECT * FROM images where postId = {$_GET['postId']} LIMIT 1";
+    $statement2 = $db->prepare($query2); // Returns a PDOStatement object.
+    $statement2->execute(); // The query is now executed.
+    
+    $result2 = $statement2->fetch();
+}
 
+if ($_POST && isset($_POST['to_delete']) && $_POST['to_delete'] === 'delete' && is_numeric($_POST['postId']) && filter_input(INPUT_POST, "postId", FILTER_SANITIZE_NUMBER_INT)) {
+  
+  $query3 = "SELECT * FROM images where postId = {$_POST['postId']} LIMIT 1";
+  $statement3 = $db->prepare($query3); // Returns a PDOStatement object.
+  $statement3->execute(); // The query is now executed.
+  
+  $result3 = $statement3->fetch();
+
+  if (!empty($result3)) {
+    $filePath = "C:\\xampp\htdocs\wd2\Project\uploads\\{$result3['imageName']}";
+
+    $deleted = unlink($filePath);
+
+    $delete_query = "DELETE FROM images WHERE postId = :postId LIMIT 1";
+
+    //Prepare the Database Object with the query
+    $fetch_statement2 = $db->prepare($delete_query); // Returns a PDOStatement object.
+
+    $fetch_statement2->bindValue(':postId', $_POST["postId"], PDO::PARAM_INT);
+
+    $fetch_statement2->execute();
+
+    $row = $fetch_statement2->fetch();
+  }  
 }
 
 if($_POST && !empty($_POST['title']) && !empty($_POST['content'])&& is_numeric($_POST['postId']) 
   && filter_input(INPUT_POST, "postId", FILTER_SANITIZE_NUMBER_INT)) {
 
-// First we need to sanitize our input first
-$sanitized_post = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+  // First we need to sanitize our input first
+  $sanitized_post = filter_input_array(INPUT_POST, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
 
-// prepare the query that we'll want to use
-$insert_query = "UPDATE post SET title=:title, content=:content WHERE postId=:postId LIMIT 1";
+  // prepare the query that we'll want to use
+  $insert_query = "UPDATE post SET title=:title, content=:content WHERE postId=:postId LIMIT 1";
 
-// Prepare the Database Object with the query
-$statement = $db->prepare($insert_query); // Returns a PDOStatement object.
+  // Prepare the Database Object with the query
+  $statement = $db->prepare($insert_query); // Returns a PDOStatement object.
 
-// bind our values to our placeholders
-$statement->bindValue(':title', $sanitized_post['title']);
-$statement->bindValue(':content', $sanitized_post['content']);
-$statement->bindValue(':postId', $sanitized_post['postId']);
-// $statement->bindValue(':categoryId', $sanitized_post['categoryId']);
+  // bind our values to our placeholders
+  $statement->bindValue(':title', $sanitized_post['title']);
+  $statement->bindValue(':content', $sanitized_post['content']);
+  $statement->bindValue(':postId', $sanitized_post['postId']);
+  // $statement->bindValue(':categoryId', $sanitized_post['categoryId']);
 
-// Finally execute the query
-$statement->execute(); // The query is now executed.
+  // Finally execute the query
+  $statement->execute(); // The query is now executed.
 
-  // if ($statement->rowCount() >= 0) {
-  //   if (isset($is_valid) && !$is_valid) {
-  //     $message = 'Sorry but the file must be a jpg, jpeg or png.</br>
-  //               If your post was successfully created you can always update it with an image later.';
-  //   }
-  //   else {
-  //     header('Location: index.php');
-  //     exit();
-  //   }
-      
-  // }
 }
 elseif ($_POST && empty($_POST['title']) && empty($_POST['content'])) {
-  exit("The title and content can NOT be empty.");
+    exit("The title and content can NOT be empty.");
 }
 
-  // print_r('hellolsdkjhs');
-//  print_r($_POST);
+ //print_r($result2['imageName']);
+
 
 // file_upload_path() - Safely build a path String that uses slashes appropriate for our OS.
 // Default upload path is an 'uploads' sub-folder in the current folder.
@@ -114,27 +132,20 @@ if ($upload_detected) {
         if ($actual_file_extension !== 'pdf') {
             $image_medium = new ImageResize("{$new_path}");
             $image_medium->resizeToLongSide(250);
-            $image_medium->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}");
+            $image_medium->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
 
         //     $image_thumbnail = new ImageResize("{$new_path}");
         //     $image_thumbnail->resizeToLongSide(50);
         //     $image_thumbnail->save('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_thumbnail.{$actual_file_extension}");
 
-          rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_original.{$actual_file_extension}");
-          rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
+          //rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_original.{$actual_file_extension}");
+          //rename('uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}_medium.{$actual_file_extension}", 'uploads'.DIRECTORY_SEPARATOR."{$actual_file_name}.{$actual_file_extension}");
         }                    
     }
 }
 
-if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image' && isset($is_valid) && $is_valid) {
-
-      
-  // $query2 = "SELECT LAST_INSERT_ID()";
-  // $statement2 = $db->prepare($query2); // Returns a PDOStatement object.
-  // $statement2->execute(); // The query is now executed.
-  
-  // $row2 = $statement2->fetch();
-  // print_r($row2);
+if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image' && isset($is_valid) && $is_valid
+    && filter_var($_FILES['uploaded_file']['name'], FILTER_SANITIZE_STRING) && filter_var($_POST["postId"], FILTER_VALIDATE_INT)) {
 
     $insert_query2 = "INSERT INTO images (imageName, postId) VALUES (:imageName, :postId)";
 
@@ -147,8 +158,9 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image' && i
   
     // Finally execute the query
     $statement2->execute(); // The query is now executed.
-
   }
+
+//print_r($_POST['submit']);
 
 ?>
 
@@ -197,7 +209,11 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image' && i
           </fieldset>
           <label for='uploaded_file'>Image Filename:</label>
           <input type='file' name='uploaded_file' id='uploaded_file'>
-          <input type='submit' name='submit' value='Upload Image'>
+          <input type='submit' name='submit' value='Upload Image'></br></br>
+          <?php if(!empty($result2)): ?>
+            <label for="delete">Check this checkbox and update your post </br> to delete the image associated with this post.</label>
+            <input type="checkbox" id="delete" name="to_delete" value="delete">            
+          <?php endif; ?>
         </form>        
         <?php if (isset($is_valid) && !$is_valid): ?>
           Sorry but the file must be a jpg, jpeg or png.</br>
