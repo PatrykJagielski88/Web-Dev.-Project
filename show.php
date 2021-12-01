@@ -3,6 +3,8 @@ September 29, 2021
 Assignment 3 -->
 
 <?php
+    session_start();
+
     require('connect.php');
     // I have the ID for the post that I need to get
 print_r($_GET);
@@ -48,6 +50,10 @@ print_r($_GET);
 </head>
 <body>
     <div id="wrapper">
+    <?php if (isset($_SESSION["loggedin"])):?>
+        <?php include('search.php'); ?>
+        You are logged in as <?= $_SESSION['username'] ?>, userid <?= $_SESSION['userId'] ?>.</br>
+    <?php endif; ?>
         <div id="header">
             <h1><a href="index.php">"Polish Pat's potatoe pancakes" Recipe for: <?= $row['title'] ?></a></h1>
         </div> 
