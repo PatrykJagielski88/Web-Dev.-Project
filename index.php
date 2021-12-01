@@ -39,7 +39,7 @@ print_r($_GET);
         $sort = "post id";
     }
         
-
+    
     // $query = "SELECT * FROM post p, category c WHERE c.categoryId = p.categoryId ORDER BY postId DESC LIMIT 5";
     $statement = $db->prepare($query); // Returns a PDOStatement object.
     $statement->execute(); // The query is now executed.
@@ -66,8 +66,12 @@ print_r($_GET);
      <title>Document</title>
  </head>
  <body>     
+ 
+   
+ 
  <div id="wrapper">
     <?php if (isset($_SESSION["loggedin"])):?>
+        <?php include('search.php'); ?>
         You are logged in as <?= $_SESSION['username'] ?>, userid <?= $_SESSION['userId'] ?>.</br>
     <?php endif; ?>
     <a href="signup.php">Signup</a>
