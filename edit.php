@@ -174,6 +174,10 @@ if ($_POST && isset($_POST['submit']) && $_POST['submit'] == 'Upload Image' && i
 </head>
 <body>
     <div id="wrapper">
+    <?php if (isset($_SESSION["loggedin"])):?>
+        <?php include('search.php'); ?>
+        You are logged in as <?= $_SESSION['username'] ?>, userid <?= $_SESSION['userId'] ?>.</br>
+    <?php endif; ?>
           <div id="header">
               <h1><a href="index.php">"Polish Pat's potatoe pancakes"</a></h1>
           </div> 
